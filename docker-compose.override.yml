@@ -1,0 +1,27 @@
+# Development overrides — merged automatically by `docker compose up`.
+# For production, skip this file: `docker compose -f docker-compose.yml up -d`.
+
+x-dev-build: &dev-build
+  context: .
+  target: dev
+
+x-dev-volumes: &dev-volumes
+  - .:/app
+
+services:
+  migrate:
+    image: popchoice-api:dev
+    build: *dev-build
+    volumes: *dev-volumes
+    environment:
+      ENVIRONMENT: local
+
+  api:
+    image: popchoice-api:dev
+    build: *dev-build
+    volumes: *dev-volumes
+    environment:
+      ENVIRONMENT: local
+      LOG_LEVEL: DEBUG
+      # File events from a Windows/macOS host don't reach the Linux VM; poll instead.
+      WATCHFILES_FORCE_POLLING: "true"
