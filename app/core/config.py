@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field, PostgresDsn, computed_field
+from pydantic import Field, PostgresDsn, computed_field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     db_pool_timeout: int = 30
     db_pool_recycle: int = 1800
     db_echo: bool = False
+
+    openai_api_key: SecretStr | None = None
+    openai_embedding_model: str = "text-embedding-ada-002"
+    openai_recommendation_model: str = "gpt-5.4-mini"
 
     @computed_field  # type: ignore[prop-decorator]
     @property
