@@ -17,4 +17,4 @@ async def create_movie(payload: MovieCreate, service: MovieServiceDep):
 
 @router.post("/recommend", response_model=MovieRecommendations, status_code=status.HTTP_200_OK)
 async def recommend_movies(payload: UserPreferences, service: MovieServiceDep):
-    return await service.recommend_movies(payload)
+    return await service.recommend_movies_for_group(payload)

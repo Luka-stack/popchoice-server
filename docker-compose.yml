@@ -53,6 +53,9 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
       CORS_ORIGINS: ${CORS_ORIGINS:-[]}
       OPENAI_API_KEY: ${OPENAI_API_KEY:?OPENAI_API_KEY must be set}
+      GROUP_STRATEGY: ${GROUP_STRATEGY:-least_misery}
+      GROUP_MIXED_PENALTY: ${GROUP_MIXED_PENALTY:-0.5}
+      GROUP_CANDIDATE_COUNT: ${GROUP_CANDIDATE_COUNT:-8}
     ports:
       - "${API_PORT:-8000}:8000"
     depends_on:

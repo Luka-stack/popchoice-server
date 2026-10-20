@@ -16,6 +16,7 @@ class MovieCreate(_SchemaBase):
 
 
 class Preference(_SchemaBase):
+    name: str | None = Field(default=None, max_length=50)
     q1: str = Field(min_length=1)
     q2: Literal["new", "classic"]
     q3: Literal["fun", "serious", "inspiring", "scary"]
@@ -24,8 +25,12 @@ class Preference(_SchemaBase):
 
 class UserPreferences(_SchemaBase):
     number_of_movies: int = Field(gt=0)
-    preferences: List[Preference]
+    preferences: List[Preference] = Field(min_items=1)
 
+
+class MemberFit(_SchemaBase):
+    name: str = Field(description="Member name exactly as given in the MEMBER tag")
+    reason: str = Field(description="One sentence on what this member will like or tolerate")
 
 class RecommendedMovie(_SchemaBase):
     title: str = Field(description="Exact movie title as written in MOVIE_CONTEXT")
@@ -33,6 +38,7 @@ class RecommendedMovie(_SchemaBase):
     short_description: str = Field(
         description="2-3 sentences, review-style, on why the movie fits the user's preferences"
     )
+    members_fit: List[MemberFit]
 
 
 class MovieRecommendations(_SchemaBase):

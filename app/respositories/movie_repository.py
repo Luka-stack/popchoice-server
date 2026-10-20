@@ -12,6 +12,18 @@ MATCH_MOVIES = text(
     "from match_movies(:query_embedding, :match_threshold, :match_count)"
 ).bindparams(bindparam("query_embedding", type_=Vector(1536)))
 
+SCORE_MOVIES_FOR_GROUP = text(
+    """
+    select m.content,
+           array_agg(1 - (m.embedding <=> cast(q.embedding as vector)) order by q.position)
+            as similarities
+    from movies m
+    cross join unnest(cast(:embeddings as text[])) with ordinality as q(embedding, position)
+    where m.embedding is not null
+    group by m.id, m.content
+    """
+)
+
 class MovieRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
@@ -46,4 +58,17 @@ class MovieRepository:
                 "match_count": 8,
             },
         )
+        
         return list(result.scalars())
+    
+    async def score_movies_for_group(
+        self, embeddings: list[list[float]]
+    ) -> list[tuple[str, list[float]]]:
+        result = await self._session.execute(
+            SCORE_MOVIES_FOR_GROUP,
+            {
+                "embeddings": [str(e) for e in embeddings]
+            }
+        )
+
+        return [(row.content, row.similarities) for row in result]

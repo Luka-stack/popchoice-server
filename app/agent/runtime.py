@@ -4,7 +4,7 @@ from openai import AsyncOpenAI
 
 from app.core.config import Settings
 from app.schemas.movie import MovieRecommendations, UserPreferences
-from app.agent.prompts import SYSTEM_PROMPT, USER_PREFERENCES_TEMPLATE
+from app.agent.prompts import SYSTEM_PROMPT, MEMBER_PREFERENCES_TEMPLATE, GROUP_PREFERENCES_TEMPLATE
 
 logger = logging.getLogger(__name__)
 
@@ -51,12 +51,15 @@ class AgentRuntime:
         recommendation_prompt = SYSTEM_PROMPT.format(
             context="\n".join(f"<MOVIE>{movie}</MOVIE>" for movie in movies)
         )
-        user_preferences = USER_PREFERENCES_TEMPLATE.format(
-            q1=user_preferences.preferences[0].q1,
-            q2=user_preferences.preferences[0].q2,
-            q3=user_preferences.preferences[0].q3,
-            q4=user_preferences.preferences[0].q4,
-            number_of_movies=user_preferences.number_of_movies
+        members = "\n".join(
+            MEMBER_PREFERENCES_TEMPLATE.format(
+                name=p.name or f"Member {i}", q1=p.q1, q2=p.q2, q3=p.q3, q4=p.q4
+            )
+            for i, p in enumerate(user_preferences.preferences, start=1)
+        )
+        group_preferences = GROUP_PREFERENCES_TEMPLATE.format(
+            number_of_movies=user_preferences.number_of_movies,
+            members=members
         )
 
         response = await self.openai.chat.completions.parse(
@@ -68,7 +71,7 @@ class AgentRuntime:
                 },
                 {
                     "role": "user",
-                    "content": user_preferences
+                    "content": group_preferences
                 }
             ],
             temperature=0.5,

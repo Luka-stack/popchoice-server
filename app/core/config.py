@@ -35,6 +35,10 @@ class Settings(BaseSettings):
     openai_embedding_model: str = "text-embedding-ada-002"
     openai_recommendation_model: str = "gpt-5.4-mini"
 
+    group_strategy: Literal["average", "least_misery", "mix"] = "least_misery"
+    group_mixed_penalty: float = Field(default=0.5, ge=0)
+    group_candidate_count: int = Field(default=8, ge=0)
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def database_url(self) -> str:
